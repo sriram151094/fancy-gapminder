@@ -10,8 +10,11 @@ var yScale;
 
 var x_attribute
 var y_attribute
+var regionSelection
 var attrMaxValues
+var filtered_data = []
 
+var UUID
 var attributes = ['population', 'lifeexpectancy', 'mortality', 'gdp']
 
 var ticksMap = new Map()
@@ -40,8 +43,6 @@ for (let i = 0; i < regions.length; i++) {
     regionColorMap.set(regions[i], d3.schemeSet2[i])
 }
 
-
-
 loadData();
 
 // On load of the page import the wrangled data.json file
@@ -54,16 +55,19 @@ function loadData() {
         attrMaxValues = data['stats']
 
         console.log(attrMaxValues)
-
+        svg = d3.select('#scatterPlot')
+        svg.append("g")
+            .attr('id', 'scatter')
         draw(true);
     })
 
     d3.select("#year-input").on('change', function () {
         draw(false);
+        //updateDataOnYearChange();
     })
 
     d3.select("#region").on('change', function () {
-        draw(true);
+        draw(false);
     })
 
     d3.select('#x-attr-select').on('change', function () {
@@ -73,13 +77,49 @@ function loadData() {
     d3.select('#y-attr-select').on('change', function () {
         draw(true);
     })
+}
+
+function handlePlayBtnClick() {
+    let toggle = d3.select('#play-button').property('value');
+
+    // Animation slider starts
+
+    d3.select('#play-button').property('value', toggle == 'Play' ? 'Pause' : 'Play');
 
 }
 
 
+function updateDataOnYearChange() {
+    new_data = []
+    if (regionSelection < 7) {
+        region = regions[regionSelection]
+        new_data = fullData[year][region]
+    }
+    else {
+        for (let i = 0; i < regions.length; i++) {
+            let t = fullData[year][regions[i]]
+            for (let j = 0; j < t.length; j++) {
+                new_data.push(t[j])
+            }
+        }
+    }
+
+    for (let i = 0; i < filtered_data.length; i++) {
+        filtered_data[i].data[x_attribute] = new_data[i].data[x_attribute]
+        filtered_data[i].data[y_attribute] = new_data[i].data[y_attribute]
+    }
+}
+
+
+function updateData() {
+    return new Promise((resolve, reject) => {
+
+    })
+}
+
 function draw(drawaxis) {
     scatterPlot().then(res => {
-        console.log("Scatter polot function resolve " + res)
+        console.log("Scatter plot function resolve " + res)
         if (drawaxis == true) {
             drawAxes(x_attribute, y_attribute).then(res => {
                 console.log("Call draw axes function status " + res);
@@ -92,9 +132,7 @@ function draw(drawaxis) {
 function scatterPlot() {
 
     return new Promise((resolve, reject) => {
-        d3.selectAll('#scatter').remove()
 
-        var filtered_data
         svg = d3.select('#scatterPlot')
         year = d3.select('#year-input').property('value')
         x_attribute = d3.select('#x-attr-select').property('value')
@@ -110,7 +148,6 @@ function scatterPlot() {
         }
         else {
             filtered_data = []
-
             for (let i = 0; i < regions.length; i++) {
                 let t = fullData[year][regions[i]]
                 for (let j = 0; j < t.length; j++) {
@@ -118,10 +155,9 @@ function scatterPlot() {
                     filtered_data.push(t[j])
                 }
             }
-
-            console.log(filtered_data)
         }
 
+        console.log(filtered_data)
 
         xScale = d3.scaleLinear()
             .domain([0, attrMaxValues[x_attribute]])
@@ -131,36 +167,114 @@ function scatterPlot() {
             .domain([0, attrMaxValues[y_attribute]])
             .range([height, 0])
 
-        svg.append("g")
-            .attr('id', 'scatter')
-
         var radius = 20
         svg = d3.select('#scatter')
-        const circles = svg.selectAll("dot")
-            .data(filtered_data)
-            .enter()
-            .append("circle")
-            .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
-            .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
-            .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
-            .attr("r", radius)
-            .style("fill", d => d.color)
 
-        const labels = svg.append('g')
-            .selectAll('text')
-            .data(filtered_data)
-            .join('text')
-            .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
-            .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
-            .attr('dx', '-12')
-            .attr('dy', '5')
-            .attr('transform', "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
-            .text(d => d.geo)
+        // let UUID = create_UUID()
+        // console.log(UUID)
+        const countries = svg.selectAll('g')
+            .data(filtered_data, d => year + d.geo + x_attribute + y_attribute )
+                .join(
+                    enter => addCirclesAndText(enter),
+                    update => updateData(update),
+                    exit => exitData(exit)
+                )
+
+        // const circles = svg.selectAll("circle")
+        //     .data(filtered_data, d => d)
+        //     .join('circle')
+        //     .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
+        //     .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
+        //     .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
+        //     .attr("r", radius)
+        //     .style("fill", d => d.color)
+
+
+        // const labels = svg.selectAll('text')
+        //     .data(filtered_data, d => d)
+        //     .join('text')
+        //     .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
+        //     .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
+        //     .attr('dx', '-12')
+        //     .attr('dy', '5')
+        //     .attr('transform', "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
+        //     .text(d => d.geo)
 
         resolve(true);
 
     })
 
+}
+
+function updateData(update) {
+    console.log("Update==========================")
+    console.log(update)
+    var radius = 20
+    update.call(
+        g => g.transition(d3.transition().duration(1000))
+            .select('circle')
+            .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
+            .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
+            .attr("r", radius)
+            .style("fill", d => d.color)
+    )
+        .call(
+            g => g.transition(d3.transition().duration(1000))
+                .select('text')
+                .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
+                .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
+                .attr('dx', '-12')
+                .attr('dy', '5')
+                .text(d => d.geo)
+        )
+}
+
+function exitData(exit) {
+    console.log("Exit============================")
+    console.log(exit)
+    exit.call(
+        g => g.transition(d3.transition().duration(500))
+            .select('circle')
+            .style('opacity', 0)
+            .remove()
+    )
+        .call(
+            g => g.transition(d3.transition().duration(500))
+                .select('text')
+                .style('opacity', 0)
+                .remove()
+        ).call(
+            g => g.remove()
+        )
+}
+
+
+function addCirclesAndText(enter) {
+    console.log("Enter============================")
+    console.log(enter)
+    var radius = 20
+    enter.append('g')
+        .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
+        .call(
+            g => g.append('circle')
+                .transition(d3.transition().duration(1500))
+                .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
+                .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
+                .attr("r", radius)
+                .style("fill", d => d.color)
+        )
+        .call(
+            g => g.append('text')
+                .style('opacity', 0)
+                .transition(d3.transition().duration(1500))
+                .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
+                .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
+                .attr('dx', '-12')
+                .attr('dy', '5')
+                .text(d => d.geo)
+                .transition(d3.transition().duration(10))
+                .style('opacity', 2)
+        )
 }
 
 
@@ -207,4 +321,14 @@ function drawAxes(x_attribute, y_attribute) {
 
         resolve("Success")
     })
+}
+
+function create_UUID() {
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
 }
