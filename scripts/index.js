@@ -111,12 +111,6 @@ function updateDataOnYearChange() {
 }
 
 
-function updateData() {
-    return new Promise((resolve, reject) => {
-
-    })
-}
-
 function draw(drawaxis) {
     scatterPlot().then(res => {
         console.log("Scatter plot function resolve " + res)
@@ -173,12 +167,12 @@ function scatterPlot() {
         // let UUID = create_UUID()
         // console.log(UUID)
         const countries = svg.selectAll('g')
-            .data(filtered_data, d => year + d.geo + x_attribute + y_attribute )
-                .join(
-                    enter => addCirclesAndText(enter),
-                    update => updateData(update),
-                    exit => exitData(exit)
-                )
+            .data(filtered_data, d => year + d.geo + x_attribute + y_attribute)
+            .join(
+                enter => addCirclesAndText(enter),
+                update => updateData(update),
+                exit => exitData(exit)
+            )
 
         // const circles = svg.selectAll("circle")
         //     .data(filtered_data, d => d)
@@ -233,18 +227,19 @@ function exitData(exit) {
     console.log("Exit============================")
     console.log(exit)
     exit.call(
-        g => g.transition(d3.transition().duration(500))
+        g => g.transition(d3.transition().duration(1000))
             .select('circle')
             .style('opacity', 0)
             .remove()
     )
         .call(
-            g => g.transition(d3.transition().duration(500))
+            g => g.transition(d3.transition().duration(1000))
                 .select('text')
                 .style('opacity', 0)
                 .remove()
         ).call(
-            g => g.remove()
+            g => g.transition(d3.transition().duration(1000))
+                .remove()
         )
 }
 
@@ -257,7 +252,7 @@ function addCirclesAndText(enter) {
         .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
         .call(
             g => g.append('circle')
-                .transition(d3.transition().duration(1500))
+                .transition(d3.transition().duration(2500))
                 .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
                 .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
                 .attr("r", radius)
@@ -266,7 +261,7 @@ function addCirclesAndText(enter) {
         .call(
             g => g.append('text')
                 .style('opacity', 0)
-                .transition(d3.transition().duration(1500))
+                .transition(d3.transition().duration(2500))
                 .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
                 .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
                 .attr('dx', '-12')
