@@ -1,5 +1,5 @@
 #wrapper {
-    margin:auto;
+  text-align: center;
   }
   input {
     width:70px;
@@ -26,4 +26,11 @@
        pointer-events: none;
        font-size: 1.3rem;
        opacity: 0;
+  }
+
+  .line {
+    fill : none;
+    stroke: black;  
+    stroke-width: 0.5;
+    opacity: 0.5;
   }

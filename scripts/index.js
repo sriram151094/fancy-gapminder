@@ -140,26 +140,26 @@ function updateYear() {
 
 }
 
-function updateDataOnYearChange() {
-    new_data = []
-    if (regionSelection < 7) {
-        region = regions[regionSelection]
-        new_data = fullData[year][region]
-    }
-    else {
-        for (let i = 0; i < regions.length; i++) {
-            let t = fullData[year][regions[i]]
-            for (let j = 0; j < t.length; j++) {
-                new_data.push(t[j])
-            }
-        }
-    }
+// function updateDataOnYearChange() {
+//     new_data = []
+//     if (regionSelection < 7) {
+//         region = regions[regionSelection]
+//         new_data = fullData[year][region]
+//     }
+//     else {
+//         for (let i = 0; i < regions.length; i++) {
+//             let t = fullData[year][regions[i]]
+//             for (let j = 0; j < t.length; j++) {
+//                 new_data.push(t[j])
+//             }
+//         }
+//     }
 
-    for (let i = 0; i < filtered_data.length; i++) {
-        filtered_data[i].data[x_attribute] = new_data[i].data[x_attribute]
-        filtered_data[i].data[y_attribute] = new_data[i].data[y_attribute]
-    }
-}
+//     for (let i = 0; i < filtered_data.length; i++) {
+//         filtered_data[i].data[x_attribute] = new_data[i].data[x_attribute]
+//         filtered_data[i].data[y_attribute] = new_data[i].data[y_attribute]
+//     }
+// }
 
 
 function draw(drawaxis) {
@@ -337,14 +337,10 @@ function drawPolyLine(countryData) {
         removePolyline()
         let line = d3.line()
             .x(function (d) {
-                let x = (d.data[x_attribute] == "undefined" || d.data[x_attribute] == "NaN") ? xScale(0) : xScale(+d.data[x_attribute]);
-                console.log(x)
-                return x
+                return (d.data[x_attribute] == "undefined" || d.data[x_attribute] == "NaN") ? xScale(0) : xScale(+d.data[x_attribute]);
             })
             .y(function (d) {
-                let y = (d.data[y_attribute] == "undefined" || d.data[y_attribute] == "NaN") ? yScale(0) : yScale(+d.data[y_attribute]);
-                console.log(y)
-                return y;
+                return (d.data[y_attribute] == "undefined" || d.data[y_attribute] == "NaN") ? yScale(0) : yScale(+d.data[y_attribute]);
             })
 
         let polyline = d3.select('#poly-line')
