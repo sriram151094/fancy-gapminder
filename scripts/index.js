@@ -16,6 +16,8 @@ var filtered_data = []
 
 var UUID
 var attributes = ['population', 'lifeexpectancy', 'mortality', 'gdp']
+var moving = false
+var label
 
 var ticksMap = new Map()
 ticksMap.set(attributes[0], function (d) { return d / 1000000; })
@@ -58,11 +60,21 @@ function loadData() {
         svg = d3.select('#scatterPlot')
         svg.append("g")
             .attr('id', 'scatter')
+
+        label = svg.append('text')
+            .attr('id', 'yearBg')
+            .attr('transform', 'translate(' + (width / 2 - 200) + ',' + (height / 2 + 100) + ')')
+            .attr('fill', 'gray')
+            .attr('opacity', '0.4')
+            .style('font-size', 200)
+            .text(1800)
         draw(true);
     })
 
     d3.select("#year-input").on('change', function () {
         draw(false);
+        let year = d3.select('#year-input').property('value')
+        label.text((year))
         //updateDataOnYearChange();
     })
 
@@ -86,8 +98,36 @@ function handlePlayBtnClick() {
 
     d3.select('#play-button').property('value', toggle == 'Play' ? 'Pause' : 'Play');
 
+    if (toggle == 'Play') {
+        moving = true
+        clearInterval(updateYear)
+        startSlider();
+    }
+    else {
+        clearInterval(updateYear)
+        moving = false
+    }
 }
 
+function startSlider() {
+    setInterval(updateYear, 1000);
+}
+
+function updateYear() {
+    let year = +d3.select("#year-input").property('value')
+    if (moving == true && year < 2100) {
+        console.log(year)
+        label.text((year + 1).toString())
+        d3.select("#year-input").property('value', (year + 1).toString())
+        draw(false)
+    }
+    else {
+        moving = false
+        clearInterval(updateYear)
+        d3.select('#play-button').property('value', 'Play');
+    }
+
+}
 
 function updateDataOnYearChange() {
     new_data = []
@@ -123,6 +163,13 @@ function draw(drawaxis) {
 }
 
 
+function checkOutliers(data) {
+    if (data[x_attribute] == "undefined" || data[y_attribute] == "undefined" || data[x_attribute] == "NaN"
+        || data[y_attribute] == "NaN")
+        return false;
+    return true;
+}
+
 function scatterPlot() {
 
     return new Promise((resolve, reject) => {
@@ -137,7 +184,8 @@ function scatterPlot() {
 
         if (regionSelection < 7) {
             region = regions[regionSelection]
-            filtered_data = fullData[year][region]
+            new_data = fullData[year][region]
+            filtered_data = new_data.filter(row => checkOutliers(row.data))
             filtered_data.forEach(data => data.color = regionColorMap.get(region))
         }
         else {
@@ -173,26 +221,6 @@ function scatterPlot() {
                 update => updateData(update),
                 exit => exitData(exit)
             )
-
-        // const circles = svg.selectAll("circle")
-        //     .data(filtered_data, d => d)
-        //     .join('circle')
-        //     .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
-        //     .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
-        //     .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
-        //     .attr("r", radius)
-        //     .style("fill", d => d.color)
-
-
-        // const labels = svg.selectAll('text')
-        //     .data(filtered_data, d => d)
-        //     .join('text')
-        //     .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
-        //     .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
-        //     .attr('dx', '-12')
-        //     .attr('dy', '5')
-        //     .attr('transform', "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
-        //     .text(d => d.geo)
 
         resolve(true);
 
