@@ -18,6 +18,7 @@ var UUID
 var attributes = ['population', 'lifeexpectancy', 'mortality', 'gdp']
 var moving = false
 var label
+var radius = 20
 
 var ticksMap = new Map()
 ticksMap.set(attributes[0], function (d) { return d / 1000000; })
@@ -58,8 +59,14 @@ function loadData() {
 
         console.log(attrMaxValues)
         svg = d3.select('#scatterPlot')
+
+        // Create a g element for scatter plot
         svg.append("g")
             .attr('id', 'scatter')
+
+        // Create a g-element for polyline    
+        svg.append("g")
+            .attr('id', 'poly-line')
 
         label = svg.append('text')
             .attr('id', 'yearBg')
@@ -213,7 +220,6 @@ function scatterPlot() {
             .domain([0, attrMaxValues[y_attribute]])
             .range([height, 0])
 
-        var radius = 20
         svg = d3.select('#scatter')
 
         // let UUID = create_UUID()
@@ -235,7 +241,6 @@ function scatterPlot() {
 function updateData(update) {
     console.log("Update==========================")
     console.log(update)
-    var radius = 20
     update.call(
         g => g.transition(d3.transition().duration(1000))
             .select('circle')
@@ -279,7 +284,6 @@ function exitData(exit) {
 function addCirclesAndText(enter) {
     console.log("Enter============================")
     console.log(enter)
-    var radius = 20
     enter.append('g')
         .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
         .call(
@@ -302,7 +306,7 @@ function addCirclesAndText(enter) {
                 .transition(d3.transition().duration(10))
                 .style('opacity', 2)
         ).call(g => g.on('mouseover', d => drawTooltip(d))
-            .on('mouseout', removeTooltip))
+            .on('mouseout', () => { removeTooltip(); removePolyline(); }))
 }
 
 
@@ -314,12 +318,63 @@ function drawTooltip(data) {
         .style("left", (d3.event.pageX + 10) + "px")
         .style("top", (d3.event.pageY - 10) + "px")
         .style("text-align", "left");
+
+    drawPolyLine(data);
 }
 
 function removeTooltip() {
     toolTip.transition()
         .duration('50')
         .style("opacity", 0)
+}
+
+
+function drawPolyLine(countryData) {
+    console.log(countryData)
+
+    getAllDataForCountry(countryData.geo, countryData.region).then(res => {
+        console.log(res)
+        removePolyline()
+        let line = d3.line()
+            .x(function (d) {
+                let x = (d.data[x_attribute] == "undefined" || d.data[x_attribute] == "NaN") ? xScale(0) : xScale(+d.data[x_attribute]);
+                console.log(x)
+                return x
+            })
+            .y(function (d) {
+                let y = (d.data[y_attribute] == "undefined" || d.data[y_attribute] == "NaN") ? yScale(0) : yScale(+d.data[y_attribute]);
+                console.log(y)
+                return y;
+            })
+
+        let polyline = d3.select('#poly-line')
+        polyline.append("path")
+            .datum(res)
+            .attr("class", "line")
+            .attr("id", "line-path")
+            .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
+            .attr("fill", "none")
+            .attr("d", line);
+    })
+}
+
+function getAllDataForCountry(countrycode, region) {
+
+    return new Promise((resolve, reject) => {
+        let country_range_data = []
+        for (let i = 1800; i <= 2100; i++) {
+            let t = fullData[i][region].filter(d => d.geo == countrycode)
+
+            if (t.length > 0)
+                country_range_data[i - 1800] = t[0]
+        }
+        resolve(country_range_data)
+    })
+
+}
+
+function removePolyline() {
+    d3.selectAll('#line-path').remove()
 }
 
 
