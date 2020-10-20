@@ -68,6 +68,10 @@ function loadData() {
             .attr('opacity', '0.4')
             .style('font-size', 200)
             .text(1800)
+
+        // Add tooltip          
+        toolTip = d3.select("body").append("div")
+            .attr("class", "tooltip")
         draw(true);
     })
 
@@ -297,7 +301,25 @@ function addCirclesAndText(enter) {
                 .text(d => d.geo)
                 .transition(d3.transition().duration(10))
                 .style('opacity', 2)
-        )
+        ).call(g => g.on('mouseover', d => drawTooltip(d))
+            .on('mouseout', removeTooltip))
+}
+
+
+function drawTooltip(data) {
+    toolTip.transition()
+        .duration(50)
+        .style("opacity", 1);
+    toolTip.html("Country: " + data.country)
+        .style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 10) + "px")
+        .style("text-align", "left");
+}
+
+function removeTooltip() {
+    toolTip.transition()
+        .duration('50')
+        .style("opacity", 0)
 }
 
 
