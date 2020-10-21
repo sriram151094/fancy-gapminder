@@ -34,3 +34,25 @@
     stroke-width: 0.5;
     opacity: 0.5;
   }
+
+  .badge {
+    background-color: #cccccc;
+    color : black;
+    font-weight: 500;
+  }
+
+  .btn-toolbar {
+    justify-content: center;
+  }
+
+  .input-group {
+    padding: 0 15px;
+  }
+
+  .paused {
+    background-color: #e77f7f;
+  }
+
+  .play {
+    background-color: #abdbba;
+  }

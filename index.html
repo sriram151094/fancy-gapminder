@@ -7,23 +7,80 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-    crossorigin="anonymous"></script>
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/cover.css" rel="stylesheet">
   <title>Homework 4</title>
 </head>
 
-<body>
-  <div id='wrapper'>
-    <h1>Homework 4</h1>
-    <input id='year-input' type='number' value='1800' />
+<body class="p-3">
+  <header class="masthead mb-auto text-center">
+    <h2><span class="badge badge-pill badge-primary">Homework 4</span>
+      <span class="badge badge-pill badge-primary">Fancy GapMinder</span>
+      <span class="badge badge-pill badge-primary">Sriram Sundararajan</span>
+      <span class="badge badge-pill badge-primary">1217117447</span></h2>
+  </header>
+
+  <div id='wrapper' class="text-center">
+
+    <div class="btn-toolbar mt-3 mb-3" role="toolbar" aria-label="Toolbar with button groups">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text" id="btnGroupAddon">X-Attribute</div>
+        </div>
+        <select id='x-attr-select' class="form-control">
+          <option value='population' selected="selected">Population</option>
+          <option value='gdp'>GDP</option>
+          <option value='mortality'>Mortality</option>
+          <option value='lifeexpectancy'>Life Expectancy</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text" id="btnGroupAddon">X-Attribute</div>
+        </div>
+        <select id='y-attr-select' class="form-control">
+          <option value='population'>Population</option>
+          <option value='gdp'>GDP</option>
+          <option value='mortality' selected="selected">Mortality</option>
+          <option value='lifeexpectancy'>Life Expectancy</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text" id="btnGroupAddon">Region</div>
+        </div>
+        <select id='region' class="form-control">
+          <option value=0>South Asia</option>
+          <option value=1>Europe & Central Asia</option>
+          <option value=2>Middle East & North Africa</option>
+          <option value=3>Sub-Saharan Africa</option>
+          <option value=4>Latin America & Caribbean</option>
+          <option value=5>East Asia & Pacific</option>
+          <option value=6>North America</option>
+          <option value=7>All</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-toolbar mt-3 mb-3" role="toolbar" aria-label="Toolbar with button groups">
+      <div class="input-group">
+        <input type="button" class="btn" id="play-button" value="Play" onclick="handlePlayBtnClick()" />
+      </div>
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text" id="btnGroupAddon">Year</div>
+        </div>
+        <input id='year-input' class="form-control" type='number' value='1800' min='1800' max='2100' />
+      </div>
+
+    </div>
+
+
+
+    <!-- <button type="button" class="btn btn-primary btn-md mb-3">Large button</button> -->
+
+
+    <!-- <input id='year-input' type='number' value='1800' />
     &nbsp;
     &nbsp;X-Attribute&nbsp;
     <select id='x-attr-select'>
@@ -50,11 +107,11 @@
       <option value=5>East Asia & Pacific</option>
       <option value=6>North America</option>
       <option value=7>All</option>
-    </select>
+    </select> -->
 
-    &nbsp;&nbsp;&nbsp;
-    <input type="button" id="play-button" value="Play" onclick="handlePlayBtnClick()"/>
-    <br />
+    <!-- &nbsp;&nbsp;&nbsp;
+    <input type="button" id="play-button" value="Play" onclick="handlePlayBtnClick()" />
+    <br /> -->
     <div class="chart-area">
       <svg id='scatterPlot'></svg>
     </div>

@@ -80,6 +80,8 @@ function loadData() {
         toolTip = d3.select("body").append("div")
             .attr("class", "tooltip")
         draw(true);
+
+        d3.select('#play-button').classed('play', !moving)
     })
 
     d3.select("#year-input").on('change', function () {
@@ -111,12 +113,16 @@ function handlePlayBtnClick() {
 
     if (toggle == 'Play') {
         moving = true
+        d3.select('#play-button').classed('play', !moving)
+        d3.select('#play-button').classed('paused', moving)
         clearInterval(updateYear)
         startSlider();
     }
     else {
         clearInterval(updateYear)
         moving = false
+        d3.select('#play-button').classed('play', !moving)
+        d3.select('#play-button').classed('paused', moving)
     }
 }
 
@@ -136,6 +142,8 @@ function updateYear() {
         moving = false
         clearInterval(updateYear)
         d3.select('#play-button').property('value', 'Play');
+        d3.select('#play-button').classed('play', !moving)
+        d3.select('#play-button').classed('paused', moving)
     }
 
 }
@@ -288,7 +296,7 @@ function addCirclesAndText(enter) {
         .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
         .call(
             g => g.append('circle')
-                .transition(d3.transition().duration(2500))
+                .transition(d3.transition().duration(2000))
                 .attr("cx", function (d) { return xScale(+d.data[x_attribute]); })
                 .attr("cy", function (d) { return yScale(+d.data[y_attribute]); })
                 .attr("r", radius)
@@ -296,15 +304,15 @@ function addCirclesAndText(enter) {
         )
         .call(
             g => g.append('text')
-                .style('opacity', 0)
-                .transition(d3.transition().duration(2500))
+                .transition(d3.transition().duration(2000))
                 .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
                 .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
                 .attr('dx', '-12')
                 .attr('dy', '5')
-                .text(d => d.geo)
-                .transition(d3.transition().duration(10))
                 .style('opacity', 2)
+                .text(d => d.geo)
+                // .transition(d3.transition().duration(10))
+                // .style('opacity', 2)
         ).call(g => g.on('mouseover', d => drawTooltip(d))
             .on('mouseout', () => { removeTooltip(); removePolyline(); }))
 }
