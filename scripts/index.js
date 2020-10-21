@@ -15,7 +15,7 @@ var attrMaxValues
 var filtered_data = []
 
 var UUID
-var attributes = ['population', 'lifeexpectancy', 'mortality', 'gdp']
+var attributes = ['population', 'lifeexpectancy', 'mortality', 'gdp', 'fertility']
 var moving = false
 var label
 var radius = 20
@@ -25,12 +25,14 @@ ticksMap.set(attributes[0], function (d) { return d / 1000000; })
 ticksMap.set(attributes[3], function (d) { return d / 1000000; })
 ticksMap.set(attributes[2], function (d) { return d; })
 ticksMap.set(attributes[1], function (d) { return d; })
+ticksMap.set(attributes[4], function (d) { return d; })
 
 var axesLabelMap = new Map()
 axesLabelMap.set(attributes[0], 'Population total in Million')
 axesLabelMap.set(attributes[1], 'Life expectancy in years')
 axesLabelMap.set(attributes[2], 'Child Mortality (0-5 years) per 1000 born')
-axesLabelMap.set(attributes[3], 'Total GDP in USD (Inflation adjusted)')
+axesLabelMap.set(attributes[3], 'Total GDP in USD in million (Inflation adjusted)')
+axesLabelMap.set(attributes[4], 'Total fertility (Children per woman)')
 
 var regions = ['South Asia',
     'Europe & Central Asia',
@@ -209,13 +211,15 @@ function scatterPlot() {
         }
         else {
             filtered_data = []
+            let new_data = []
             for (let i = 0; i < regions.length; i++) {
                 let t = fullData[year][regions[i]]
                 for (let j = 0; j < t.length; j++) {
                     t[j].color = regionColorMap.get(regions[i])
-                    filtered_data.push(t[j])
+                    new_data.push(t[j])
                 }
             }
+            filtered_data = new_data.filter(row => checkOutliers(row.data))
         }
 
         console.log(filtered_data)
@@ -304,6 +308,7 @@ function addCirclesAndText(enter) {
         )
         .call(
             g => g.append('text')
+                .style('opacity', 0)
                 .transition(d3.transition().duration(2000))
                 .attr('x', function (d) { return xScale(+d.data[x_attribute]); })
                 .attr('y', function (d) { return yScale(+d.data[y_attribute]); })
@@ -311,8 +316,8 @@ function addCirclesAndText(enter) {
                 .attr('dy', '5')
                 .style('opacity', 2)
                 .text(d => d.geo)
-                // .transition(d3.transition().duration(10))
-                // .style('opacity', 2)
+            // .transition(d3.transition().duration(10))
+            // .style('opacity', 2)
         ).call(g => g.on('mouseover', d => drawTooltip(d))
             .on('mouseout', () => { removeTooltip(); removePolyline(); }))
 }
