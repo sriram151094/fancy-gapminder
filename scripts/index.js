@@ -54,12 +54,10 @@ loadData();
 function loadData() {
     d3.json("data/data.json").then(data => {
         fullData = data;
-        console.log(fullData);
 
         // Get the maximum value for all the four attributes
         attrMaxValues = data['stats']
 
-        console.log(attrMaxValues)
         svg = d3.select('#scatterPlot')
 
         // Create a g element for scatter plot
@@ -135,7 +133,6 @@ function startSlider() {
 function updateYear() {
     let year = +d3.select("#year-input").property('value')
     if (moving == true && year < 2100) {
-        console.log(year)
         label.text((year + 1).toString())
         d3.select("#year-input").property('value', (year + 1).toString())
         draw(false)
@@ -174,10 +171,8 @@ function updateYear() {
 
 function draw(drawaxis) {
     scatterPlot().then(res => {
-        console.log("Scatter plot function resolve " + res)
         if (drawaxis == true) {
             drawAxes(x_attribute, y_attribute).then(res => {
-                console.log("Call draw axes function status " + res);
             })
         }
     });
@@ -222,8 +217,6 @@ function scatterPlot() {
             filtered_data = new_data.filter(row => checkOutliers(row.data))
         }
 
-        console.log(filtered_data)
-
         xScale = d3.scaleLinear()
             .domain([0, attrMaxValues[x_attribute]])
             .range([0, width])
@@ -234,8 +227,6 @@ function scatterPlot() {
 
         svg = d3.select('#scatter')
 
-        // let UUID = create_UUID()
-        // console.log(UUID)
         const countries = svg.selectAll('g')
             .data(filtered_data, d => year + d.geo + x_attribute + y_attribute)
             .join(
@@ -251,8 +242,6 @@ function scatterPlot() {
 }
 
 function updateData(update) {
-    console.log("Update==========================")
-    console.log(update)
     update.call(
         g => g.transition(d3.transition().duration(1000))
             .select('circle')
@@ -273,8 +262,6 @@ function updateData(update) {
 }
 
 function exitData(exit) {
-    console.log("Exit============================")
-    console.log(exit)
     exit.call(
         g => g.transition(d3.transition().duration(1000))
             .select('circle')
@@ -294,8 +281,6 @@ function exitData(exit) {
 
 
 function addCirclesAndText(enter) {
-    console.log("Enter============================")
-    console.log(enter)
     enter.append('g')
         .attr("transform", "translate(" + (margin.left + radius + 5) + "," + (margin.top - radius - 5) + ")")
         .call(
@@ -343,10 +328,8 @@ function removeTooltip() {
 
 
 function drawPolyLine(countryData) {
-    console.log(countryData)
 
     getAllDataForCountry(countryData.geo, countryData.region).then(res => {
-        console.log(res)
         removePolyline()
         let line = d3.line()
             .x(function (d) {
