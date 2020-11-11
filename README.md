@@ -6,6 +6,6 @@ Visualizing GapMinder data using D3.js
 
 # Implementation screnshots
 
-[Screenshot](images/gapminder.gif)
+![Screenshot](images/gapminder.gif)
 
-[Snapshot](images/screenshot.png)
+![Snapshot](images/screenshot.png)
